@@ -39,24 +39,18 @@ const mergeSort = async arr =>
 			answer = true;
 		else
 		{
+            //answer = leftArr[left] < rightArr[right];
             answer = await new Promise(resolve => 
             {
                 questionElement.innerText = `${leftArr[left]} VS ${rightArr[right]}`;
                 leftButton.addEventListener('mousedown', () => resolve(false));
                 rightButton.addEventListener('mousedown', () => resolve(true));
             });
-			answer = leftArr[left] < rightArr[right];
 		}
         if(answer)
-        {
-            arr[i] = leftArr[left];
-            ++left;
-        }
+            arr[i] = leftArr[left++];
         else
-        {
-            arr[i] = rightArr[right];
-            ++right;
-        }
+            arr[i] = rightArr[right++];
     }
     return arr;
 };
