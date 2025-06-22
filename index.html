@@ -1,10 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8"/>
-    <title>Rank It!</title>
-  </head>
-  <body>
-	  <h1>Let's rank some lists!</h1>
-  </body>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Rank It!</title>
+       	<link rel="stylesheet" type="text/css" href="index.css"></link>
+    </head>
+    <body>
+        <div class="flex-container">
+            <button id="add-to-list-button">add me</button>
+            <button id="sort-list-button">sort me</button>
+            <ul id="list"></ul>
+        </div>
+        <div class="flex-container">
+            <h3 id="question"></h3>
+            <button id="left-button">left</button>
+            <button id="right-button">right</button>
+        </div>
+        <div class="flex-container">
+            <ul id="results"></ul>
+        </div>
+        <script src="index.js"></script>
+    </body>
  </html>
