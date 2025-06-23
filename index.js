@@ -27,8 +27,7 @@ const inputCompare = async (left, right) =>
         leftButton.addEventListener('mousedown', () => resolve(true));
         rightButton.addEventListener('mousedown', () => resolve(false));
         sortListButton.addEventListener('mousedown', () => reject('Resorting'))
-    })
-    .catch(e => {throw e;});
+    });
 };
 
 const autoSort = (left, right) =>
@@ -37,12 +36,13 @@ const autoSort = (left, right) =>
 }
 const mergeSort = async (arr, compareFn=autoSort) =>
 {
+    arr = [...arr];
     if(arr.length <= 1)
         return arr;
 	
     const mid = Math.floor(arr.length / 2);
-    const leftArr = await mergeSort([...arr.slice(0, mid)], compareFn);
-    const rightArr = await mergeSort([...arr.slice(mid, arr.length)], compareFn);
+    const leftArr = await mergeSort(arr.slice(0, mid), compareFn);
+    const rightArr = await mergeSort(arr.slice(mid, arr.length), compareFn);
     let left = 0;
     let right = 0;
 	let answer;
@@ -69,8 +69,8 @@ const sortList = async () =>
     mergeSort(lst, inputCompare).then(sorted =>
     {
         questionElement.innerText = '';
-        resultsElement.innerHTML = ''
-        lst.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
+        resultsElement.innerHTML = '';
+        sorted.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
     })
     .catch(e => console.log(e))
 };
