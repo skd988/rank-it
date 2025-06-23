@@ -24,9 +24,9 @@ const mergeSort = async (arr, compareFn=autoSort) =>
 	let answer;
     for(let i = 0; i < arr.length; ++i)
     {
-		if(left == leftArr.length)
+		if(left === leftArr.length)
 			answer = false;
-		else if(right == rightArr.length)
+		else if(right === rightArr.length)
 			answer = true;
 		else
             answer = await compareFn(leftArr[left], rightArr[right]);
@@ -46,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () =>
     const leftButton = document.querySelector('#left-button');
     const rightButton = document.querySelector('#right-button');
     const questionElement = document.querySelector('#question');
-    const addRowButton = document.querySelector('#add-to-list-button');
     const sortListButton = document.querySelector('#sort-list-button');
     const resultsElement = document.querySelector('#results');
     
@@ -67,22 +66,38 @@ document.addEventListener('DOMContentLoaded', () =>
         .catch(e => console.log(e))
     };
 
+    
     const inputCompare = async (left, right) => 
     {
+        let leftButtonFn, rightButtonFn, resortingFn, inputCompareKeysFn;
         return new Promise((resolve, reject) => 
         {
-            questionElement.innerText = `${left} VS ${right}`;
-            leftButton.addEventListener('mousedown', () => resolve(true));
-            rightButton.addEventListener('mousedown', () => resolve(false));
-            sortListButton.addEventListener('mousedown', () => reject('Resorting'));
-            document.addEventListener('keydown', e => 
+            leftButtonFn = () => resolve(true);
+            rightButtonFn = () => resolve(false);
+            resortingFn = () => reject('Resorting');
+            inputCompareKeysFn = e => 
             {
                 const key = e.key;
                 if (key === 'ArrowLeft')
                     resolve(true);
                 else if (key === 'ArrowRight')
                     resolve(false);
-            });
+                else if (key === 's')
+                    reject('Resorting')
+            };
+
+            questionElement.innerText = `${left} VS ${right}`;
+            leftButton.addEventListener('mousedown', leftButtonFn);
+            rightButton.addEventListener('mousedown', rightButtonFn);
+            sortListButton.addEventListener('mousedown', resortingFn);
+            document.addEventListener('keydown', inputCompareKeysFn);
+        })
+        .finally(() => 
+        {
+            document.removeEventListener('keydown', inputCompareKeysFn);
+            document.removeEventListener('mousedown', leftButtonFn);
+            document.removeEventListener('mousedown', rightButtonFn);
+            document.removeEventListener('mousedown', resortingFn);
         });
     };
 
