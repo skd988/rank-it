@@ -19,15 +19,30 @@ const addToList = () =>
     listElement.appendChild(createElementFromHtml(`<li><input type="textbox"></li>`));
 };
 
-const mergeSort = async arr =>
+const inputCompare = async (left, right) => 
+{
+    return new Promise((resolve, reject) => 
+    {
+        questionElement.innerText = `${left} VS ${right}`;
+        leftButton.addEventListener('mousedown', () => resolve(true));
+        rightButton.addEventListener('mousedown', () => resolve(false));
+        sortListButton.addEventListener('mousedown', () => reject('Resorting'))
+    })
+    .catch(e => {throw e;});
+};
+
+const autoSort = (left, right) =>
+{
+    return left < right;
+}
+const mergeSort = async (arr, compareFn=autoSort) =>
 {
     if(arr.length <= 1)
         return arr;
 	
     const mid = Math.floor(arr.length / 2);
-    const leftArr = await mergeSort([...arr.slice(0, mid)]);
-    const rightArr = await mergeSort([...arr.slice(mid, arr.length)]);
-
+    const leftArr = await mergeSort([...arr.slice(0, mid)], compareFn);
+    const rightArr = await mergeSort([...arr.slice(mid, arr.length)], compareFn);
     let left = 0;
     let right = 0;
 	let answer;
@@ -38,15 +53,8 @@ const mergeSort = async arr =>
 		else if(right == rightArr.length)
 			answer = true;
 		else
-		{
-            //answer = leftArr[left] < rightArr[right];
-            answer = await new Promise(resolve => 
-            {
-                questionElement.innerText = `${leftArr[left]} VS ${rightArr[right]}`;
-                leftButton.addEventListener('mousedown', () => resolve(false));
-                rightButton.addEventListener('mousedown', () => resolve(true));
-            });
-		}
+            answer = await compareFn(leftArr[left], rightArr[right]);
+
         if(answer)
             arr[i] = leftArr[left++];
         else
@@ -58,10 +66,13 @@ const mergeSort = async arr =>
 const sortList = async () =>
 {
     let lst = Array.from(listElement.children).map(item => item.querySelector('input').value);
-    lst = await mergeSort(lst);
-    questionElement.innerText = '';
-    resultsElement.innerHTML = ''
-    lst.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
+    mergeSort(lst, inputCompare).then(sorted =>
+    {
+        questionElement.innerText = '';
+        resultsElement.innerHTML = ''
+        lst.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
+    })
+    .catch(e => console.log(e))
 };
 
 addToList();
