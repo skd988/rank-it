@@ -75,6 +75,14 @@ document.addEventListener('DOMContentLoaded', () =>
             leftButton.addEventListener('mousedown', () => resolve(true));
             rightButton.addEventListener('mousedown', () => resolve(false));
             sortListButton.addEventListener('mousedown', () => reject('Resorting'));
+            document.addEventListener('keydown', e => 
+            {
+                const key = e.key;
+                if (key === 'ArrowLeft')
+                    resolve(true);
+                else if (key === 'ArrowRight')
+                    resolve(false);
+            });
         });
     };
 
