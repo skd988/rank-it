@@ -1,12 +1,3 @@
-const listElement = document.querySelector('#list');
-const leftButton = document.querySelector('#left-button');
-const rightButton = document.querySelector('#right-button');
-const questionElement = document.querySelector('#question');
-const addRowButton = document.querySelector('#add-to-list-button');
-const sortListButton = document.querySelector('#sort-list-button');
-const resultsElement = document.querySelector('#results');
-let lst = [];
-
 const createElementFromHtml = htmlString => 
 {
 	const elem = document.createElement('template');
@@ -14,26 +5,11 @@ const createElementFromHtml = htmlString =>
 	return elem.content;
 };
 
-const addToList = () =>
-{
-    listElement.appendChild(createElementFromHtml(`<li><input type="textbox"></li>`));
-};
-
-const inputCompare = async (left, right) => 
-{
-    return new Promise((resolve, reject) => 
-    {
-        questionElement.innerText = `${left} VS ${right}`;
-        leftButton.addEventListener('mousedown', () => resolve(true));
-        rightButton.addEventListener('mousedown', () => resolve(false));
-        sortListButton.addEventListener('mousedown', () => reject('Resorting'))
-    });
-};
-
 const autoSort = (left, right) =>
 {
     return left < right;
-}
+};
+
 const mergeSort = async (arr, compareFn=autoSort) =>
 {
     arr = [...arr];
@@ -63,19 +39,44 @@ const mergeSort = async (arr, compareFn=autoSort) =>
     return arr;
 };
 
-const sortList = async () =>
+
+document.addEventListener('DOMContentLoaded', () => 
 {
-    let lst = Array.from(listElement.children).map(item => item.querySelector('input').value);
-    mergeSort(lst, inputCompare).then(sorted =>
+    const listElement = document.querySelector('#list');
+    const leftButton = document.querySelector('#left-button');
+    const rightButton = document.querySelector('#right-button');
+    const questionElement = document.querySelector('#question');
+    const addRowButton = document.querySelector('#add-to-list-button');
+    const sortListButton = document.querySelector('#sort-list-button');
+    const resultsElement = document.querySelector('#results');
+    
+    const getInputList = () => 
     {
-        questionElement.innerText = '';
-        resultsElement.innerHTML = '';
-        sorted.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
-    })
-    .catch(e => console.log(e))
-};
+        return listElement.value.split('\n').filter(i => i);
+    };
+    
+    const sortList = async () =>
+    {
+        const lst = getInputList();
+        mergeSort(lst, inputCompare).then(sorted =>
+        {
+            questionElement.innerText = '';
+            resultsElement.innerHTML = '';
+            sorted.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
+        })
+        .catch(e => console.log(e))
+    };
 
-addToList();
+    const inputCompare = async (left, right) => 
+    {
+        return new Promise((resolve, reject) => 
+        {
+            questionElement.innerText = `${left} VS ${right}`;
+            leftButton.addEventListener('mousedown', () => resolve(true));
+            rightButton.addEventListener('mousedown', () => resolve(false));
+            sortListButton.addEventListener('mousedown', () => reject('Resorting'));
+        });
+    };
 
-addRowButton.addEventListener('mousedown', addToList);
-sortListButton.addEventListener('mousedown', sortList);
+    sortListButton.addEventListener('mousedown', sortList);
+});
