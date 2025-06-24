@@ -1,3 +1,5 @@
+import {getNumOfQuestionsRange, getAverageNumOfQuestions} from "./math.js";
+
 const createElementFromHtml = htmlString => 
 {
 	const elem = document.createElement('template');
@@ -12,10 +14,10 @@ const autoSort = (left, right) =>
 
 const mergeSort = async (arr, compareFn=autoSort) =>
 {
-    arr = [...arr];
     if(arr.length <= 1)
         return arr;
-	
+    
+    arr = [...arr];
     const mid = Math.floor(arr.length / 2);
     const leftArr = await mergeSort(arr.slice(0, mid), compareFn);
     const rightArr = await mergeSort(arr.slice(mid, arr.length), compareFn);
@@ -48,19 +50,31 @@ document.addEventListener('DOMContentLoaded', () =>
     const questionElement = document.querySelector('#question');
     const sortListButton = document.querySelector('#sort-list-button');
     const resultsElement = document.querySelector('#results');
-    
+    const infoElement = document.querySelector('#info');
+
     const getInputList = () => 
     {
         return listElement.value.split('\n').filter(i => i);
     };
     
+    const addInfo = size =>
+    {
+        const range = getNumOfQuestionsRange(size);
+        const avg = getAverageNumOfQuestions(size);
+        infoElement.innerHTML = '';
+        infoElement.appendChild(createElementFromHtml(`<h4>List's length: ${size}</h4>`));
+        infoElement.appendChild(createElementFromHtml(`<h4>Comparisons Range: ${range[0]}-${range[1]}</h4>`));
+        infoElement.appendChild(createElementFromHtml(`<h4>Comparisons Average: ${avg}</h4>`));
+    }
+
     const sortList = async () =>
     {
+        resultsElement.innerHTML = '';
         const lst = getInputList();
+        addInfo(lst.length);
         mergeSort(lst, inputCompare).then(sorted =>
         {
             questionElement.innerText = '';
-            resultsElement.innerHTML = '';
             sorted.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
         })
         .catch(e => console.log(e))
