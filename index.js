@@ -44,6 +44,9 @@ const mergeSort = async (arr, compareFn=autoSort) =>
 
 document.addEventListener('DOMContentLoaded', () => 
 {
+    let params = new URLSearchParams(document.location.search);
+    let v = params.get("v"); // is the string "Jonathan"
+    console.log(v)
     const listElement = document.querySelector('#list');
     const leftButton = document.querySelector('#left-button');
     const rightButton = document.querySelector('#right-button');
@@ -51,6 +54,9 @@ document.addEventListener('DOMContentLoaded', () =>
     const sortListButton = document.querySelector('#sort-list-button');
     const resultsElement = document.querySelector('#results');
     const infoElement = document.querySelector('#info');
+    const configElement = document.querySelector('#config');
+    const configCompress = document.querySelector('#config-compress');
+    const config = {'list': []};
 
     const getInputList = () => 
     {
@@ -62,15 +68,47 @@ document.addEventListener('DOMContentLoaded', () =>
         const range = getNumOfQuestionsRange(size);
         const avg = getAverageNumOfQuestions(size);
         infoElement.innerHTML = '';
-        infoElement.appendChild(createElementFromHtml(`<h4>List's length: ${size}</h4>`));
+        infoElement.appendChild(createElementFromHtml(`<h4>List's Length: ${size}</h4>`));
         infoElement.appendChild(createElementFromHtml(`<h4>Comparisons Range: ${range[0]}-${range[1]}</h4>`));
         infoElement.appendChild(createElementFromHtml(`<h4>Comparisons Average: ${avg}</h4>`));
+    }
+    
+    function toBinary(string) {
+    const codeUnits = new Uint16Array(string.length);
+    for (let i = 0; i < codeUnits.length; i++) {
+        codeUnits[i] = string.charCodeAt(i);
+    }
+    return btoa(String.fromCharCode(...new Uint8Array(codeUnits.buffer)));
+    }
+    function fromBinary(encoded) {
+    const binary = atob(encoded);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return String.fromCharCode(...new Uint16Array(bytes.buffer));
     }
 
     const sortList = async () =>
     {
         resultsElement.innerHTML = '';
         const lst = getInputList();
+        config['list'] = lst;
+        const config64 = toBinary(JSON.stringify(config));
+        var string = JSON.stringify(config);
+        console.log("Size of sample is: " + string.length);
+        var compressed = LZString.compress(string);
+        console.log("Size of compressed sample is: " + compressed.length);
+        console.log('compressed:\n',toBinary(compressed));
+        console.log(fromBinary(toBinary(compressed)));
+        string = LZString.decompress(compressed);
+        console.log("Sample is: " + string);
+        configElement.innerText = config64;
+        console.log('base64:\n', config64);
+        console.log(fromBinary(config64))
+
+        console.log(toBinary(compressed).length)
+        console.log(config64.length)
         addInfo(lst.length);
         mergeSort(lst, inputCompare).then(sorted =>
         {
