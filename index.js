@@ -7,6 +7,19 @@ const createElementFromHtml = htmlString =>
 	return elem.content;
 };
 
+const shuffleArray = arr =>
+{
+	arr = [...arr];
+	for(let i = arr.length - 1; i > 0; --i)
+	{
+		const randIndex = Math.floor(Math.random() * (i + 1));
+		const temp = arr[i];
+		arr[i] = arr[randIndex];
+		arr[randIndex] = temp;
+	}
+	return arr;
+};
+
 const autoSort = (left, right) =>
 {
     return left < right;
@@ -51,6 +64,8 @@ document.addEventListener('DOMContentLoaded', () =>
     const sortListButton = document.querySelector('#sort-list-button');
     const resultsElement = document.querySelector('#results');
     const infoElement = document.querySelector('#info');
+    const shuffleCheckbox = document.querySelector('#shuffle');
+
 
     const getInputList = () => 
     {
@@ -65,12 +80,14 @@ document.addEventListener('DOMContentLoaded', () =>
         infoElement.appendChild(createElementFromHtml(`<h4>List's length: ${size}</h4>`));
         infoElement.appendChild(createElementFromHtml(`<h4>Comparisons Range: ${range[0]}-${range[1]}</h4>`));
         infoElement.appendChild(createElementFromHtml(`<h4>Comparisons Average: ${avg}</h4>`));
-    }
+    };
 
     const sortList = async () =>
     {
         resultsElement.innerHTML = '';
-        const lst = getInputList();
+        let lst = getInputList();
+        if(shuffleCheckbox.checked)
+            lst = shuffleArray(lst);
         addInfo(lst.length);
         mergeSort(lst, inputCompare).then(sorted =>
         {
