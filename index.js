@@ -20,8 +20,10 @@ const shuffleArray = arr =>
 	return arr;
 };
 
+let myComps = 0;
 const autoSort = (left, right) =>
 {
+    myComps++;
     return left < right;
 };
 
@@ -54,7 +56,33 @@ const mergeSort = async (arr, compareFn=autoSort) =>
     return arr;
 };
 
+const measureFunc = async (func) =>
+{
+    const start = (new Date()).getTime();
+    await func();
+    return (new Date()).getTime() - start;
+}
 
+let size = 10000;
+let lst = Array.from(Array(size).keys())
+
+let theirComps = 0;
+let myAvg = 0, theirAvg = 0;
+let n = 10;
+for(let i = 0; i < n; ++i)
+{
+    lst = shuffleArray(lst);
+    let lst1 = [...lst];
+    let lst2 = [...lst];
+    myComps = 0;
+    theirComps = 0;
+    console.log(await measureFunc(async()=>mergeSort(lst1, autoSort)))
+    console.log(await measureFunc(() => lst2.sort((a,b) => {theirComps++; return a - b;})));
+    myAvg += myComps / n;
+    theirAvg += theirComps / n
+    console.log(myComps, theirComps);
+}
+console.log(/*getAverageNumOfQuestions(size), */myAvg, theirAvg)
 document.addEventListener('DOMContentLoaded', () => 
 {
     const listElement = document.querySelector('#list');
@@ -65,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () =>
     const resultsElement = document.querySelector('#results');
     const infoElement = document.querySelector('#info');
     const shuffleCheckbox = document.querySelector('#shuffle');
-
 
     const getInputList = () => 
     {
@@ -88,6 +115,8 @@ document.addEventListener('DOMContentLoaded', () =>
         let lst = getInputList();
         if(shuffleCheckbox.checked)
             lst = shuffleArray(lst);
+        //lst = Array.from(Array(10000).keys())
+        //console.log(measureFunc(() => console.log(shuffleArray(lst))), measureFunc(() => console.log(lst.sort(() => Math.random() - 0.5))))
         addInfo(lst.length);
         mergeSort(lst, inputCompare).then(sorted =>
         {
