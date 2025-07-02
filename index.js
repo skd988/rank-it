@@ -41,25 +41,64 @@ const mergeSort = async (arr, compareFn=autoSort) =>
     return arr;
 };
 
+const compressAndEncodeToBase64 = obj => toBinary(LZString.compress(JSON.stringify(obj))).replaceAll('+', '-');
 
+const decompressAndDecodeFromBase64 = compressed => JSON.parse(LZString.decompress(fromBinary(compressed.replaceAll('-', '+'))));
+
+function toBinary(string) {
+    const codeUnits = new Uint16Array(string.length);
+    for (let i = 0; i < codeUnits.length; i++)
+        codeUnits[i] = string.charCodeAt(i);
+
+    return btoa(String.fromCharCode(...new Uint8Array(codeUnits.buffer)));
+}
+
+function fromBinary(encoded) {
+    console.log(encoded)
+    const binary = atob(encoded);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < bytes.length; i++)
+        bytes[i] = binary.charCodeAt(i);
+
+    return String.fromCharCode(...new Uint16Array(bytes.buffer));
+}
+let config2 = {};
+try{
+
+    let params = new URLSearchParams(document.location.search);
+    config2 = params.get('config');
+}
+catch(e){
+    console.log(e)
+}
 document.addEventListener('DOMContentLoaded', () => 
 {
-    let params = new URLSearchParams(document.location.search);
-    let v = params.get("v"); // is the string "Jonathan"
-    console.log(v)
     const listElement = document.querySelector('#list');
     const leftButton = document.querySelector('#left-button');
     const rightButton = document.querySelector('#right-button');
+    const saveButton = document.querySelector('#save-button');
     const questionElement = document.querySelector('#question');
     const sortListButton = document.querySelector('#sort-list-button');
     const resultsElement = document.querySelector('#results');
     const infoElement = document.querySelector('#info');
+    const saveLinkElement = document.querySelector('#save-link');
     const configElement = document.querySelector('#config');
     const configCompress = document.querySelector('#config-compress');
     const config = {'list': []};
 
+    try{
+        config2 = decompressAndDecodeFromBase64(config2);
+
+        console.log(config2)
+        if (config2)
+           list.value = config2['list'].join('\n');
+    }
+    catch(e){
+        console.log(e);
+    }
+    console.log('hello!')
     const getInputList = () => 
-    {
+        {
         return listElement.value.split('\n').filter(i => i);
     };
     
@@ -73,42 +112,30 @@ document.addEventListener('DOMContentLoaded', () =>
         infoElement.appendChild(createElementFromHtml(`<h4>Comparisons Average: ${avg}</h4>`));
     }
     
-    function toBinary(string) {
-    const codeUnits = new Uint16Array(string.length);
-    for (let i = 0; i < codeUnits.length; i++) {
-        codeUnits[i] = string.charCodeAt(i);
-    }
-    return btoa(String.fromCharCode(...new Uint8Array(codeUnits.buffer)));
-    }
-    function fromBinary(encoded) {
-    const binary = atob(encoded);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < bytes.length; i++) {
-        bytes[i] = binary.charCodeAt(i);
-    }
-    return String.fromCharCode(...new Uint16Array(bytes.buffer));
-    }
+
+
 
     const sortList = async () =>
     {
         resultsElement.innerHTML = '';
         const lst = getInputList();
         config['list'] = lst;
-        const config64 = toBinary(JSON.stringify(config));
         var string = JSON.stringify(config);
+        console.log('string:', string)
         console.log("Size of sample is: " + string.length);
         var compressed = LZString.compress(string);
+        console.log('Orig compressed:', compressed);
         console.log("Size of compressed sample is: " + compressed.length);
-        console.log('compressed:\n',toBinary(compressed));
-        console.log(fromBinary(toBinary(compressed)));
-        string = LZString.decompress(compressed);
-        console.log("Sample is: " + string);
+        var bin_compressed = toBinary(compressed);
+        console.log('compressed binary:\n',bin_compressed);
+        console.log('compressed binary size:\n', bin_compressed.length);
+        console.log(LZString.decompress(fromBinary(bin_compressed)) === string);
+        const config64 = toBinary(string);
         configElement.innerText = config64;
         console.log('base64:\n', config64);
-        console.log(fromBinary(config64))
-
-        console.log(toBinary(compressed).length)
-        console.log(config64.length)
+        console.log('base64 size:', config64.length);
+        console.log(fromBinary(config64) === string)
+        console.log(decompressAndDecodeFromBase64(compressAndEncodeToBase64(config)))
         addInfo(lst.length);
         mergeSort(lst, inputCompare).then(sorted =>
         {
@@ -152,6 +179,16 @@ document.addEventListener('DOMContentLoaded', () =>
             document.removeEventListener('mousedown', resortingFn);
         });
     };
-
+    saveButton.addEventListener('mousedown', () =>
+    {
+            console.log('bye!')
+        const lst = getInputList();
+        config['list'] = lst;
+        console.log(compressAndEncodeToBase64(config))
+        saveLinkElement.innerText = location.host + location.pathname + '?config=' + compressAndEncodeToBase64(config);
+        saveLinkElement.href = location.host + location.pathname + '?config=' + compressAndEncodeToBase64(config);
+        //saveLinkElement.innerText = window.location.href + '?config=' + compressAndEncodeToBase64(config);
+        //saveLinkElement.href = window.location.href + '?config=' + compressAndEncodeToBase64(config);
+    });
     sortListButton.addEventListener('mousedown', sortList);
 });
