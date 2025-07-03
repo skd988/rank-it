@@ -16,7 +16,7 @@ export const binomialCoefficient = (() =>
     };
 })();
 
-export const getNumOfQuestionsRange = size =>
+export const getNumOfComparisonsRange = size =>
 {
 	const ranges = [[0, 0], [0, 0]];
 	for (let i = 2; i <= size; ++i)
@@ -29,7 +29,7 @@ export const getNumOfQuestionsRange = size =>
 	return ranges[size];
 };
 
-export const getAverageNumOfQuestions = size =>
+export const getExpectedNumOfComparisons = size =>
 {
 	const sort_averages = [0, 0];
 	for (let n = 2; n <= size; ++n)
