@@ -16,8 +16,8 @@ const loadConfig = () =>
     {
         if(!params.has('config'))
             return config;
-
-        config = JSON.parse(LZString.decompressFromBase64(params.get('config').replace('-', '+' )));
+        
+        config = JSON.parse(LZString.decompressFromBase64(params.get('config').replaceAll('-', '+' )));
 
         if(!typeof(config['list'].constructor === Array))
             throw 'Invalid config';
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () =>
 
     const config = loadConfig();
     let list = config['list']? config['list'] : [];
-    let save = config['save']? config['save'] : [];
+    let save = config['save']? config['save'].map(i => Boolean(i)) : [];
     let permutation = config['permutation']? config['permutation'] : null;
 
     let saveIndex = 0;
@@ -78,7 +78,11 @@ document.addEventListener('DOMContentLoaded', () =>
             permutation = null;
             sorted.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
         })
-        .catch(e => console.error(e));
+        .catch(e => 
+        {
+            if(e !== 'Resorting')
+                console.error(e);
+        })
     };
 
     
@@ -131,10 +135,10 @@ document.addEventListener('DOMContentLoaded', () =>
     const share = () =>
     {
         config['list'] = list.length? list : getInputList();
-        config['save'] = save;
+        config['save'] = save.map(i => +i);
         config['permutation'] = permutation? permutation : null;
         const compressedConfig = LZString.compressToBase64(JSON.stringify(config));
-        const link = location.protocol + '//' + location.host + location.pathname + '?config=' + compressedConfig.replace('+', '-');
+        const link = location.protocol + '//' + location.host + location.pathname + '?config=' + compressedConfig.replaceAll('+', '-');
         linkElement.href = link;
         linkElement.innerText = 'Link!';
         navigator.clipboard.writeText(link);
