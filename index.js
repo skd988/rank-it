@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () =>
     const rightButton = document.querySelector('#right-button');
     const questionElement = document.querySelector('#question');
     const sortListButton = document.querySelector('#sort-list-button');
+    const backButton = document.querySelector('#back-button');
     const shareButton = document.querySelector('#share-button');
     const resultsElement = document.querySelector('#results');
     const infoElement = document.querySelector('#info');
@@ -47,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () =>
     let list = config['list']? config['list'] : [];
     let save = config['save']? config['save'].map(i => Boolean(i)) : [];
     let permutation = config['permutation']? config['permutation'] : null;
+    let listToRank;
 
     let saveIndex = 0;
 
@@ -80,15 +82,39 @@ document.addEventListener('DOMContentLoaded', () =>
         })
         .catch(e => 
         {
-            if(e !== 'Resorting')
+            if(e !== 'Resorting' && e !== 'Back')
                 console.error(e);
         })
     };
 
+    const backButtonFn = async () =>
+    {
+        save.pop();
+        saveIndex = 0;
+        rankList(listToRank);
+    };
     
+    const rankListButtonFn = async () =>
+    {
+        list = getInputList();
+        save = [];
+        saveIndex = 0;
+        if(shuffleCheckbox.checked)
+        {
+            permutation = createRandomPermutation(list.length);
+            listToRank = shuffleArrayByPermutation(list, permutation);
+        }
+        else
+        {
+            listToRank = [...list];
+            permutation = null;
+        }
+        rankList(listToRank); 
+    };
+
     const inputCompare = async (left, right) => 
     {
-        let leftButtonFn, rightButtonFn, resortingFn, inputCompareKeysFn;
+        let leftButtonFn, rightButtonFn, resortingFn, inputCompareKeysFn, backFn;
         
         return new Promise((resolve, reject) => 
         {
@@ -98,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () =>
             leftButtonFn = () => resolve(true);
             rightButtonFn = () => resolve(false);
             resortingFn = () => reject('Resorting');
+            backFn = () => reject('Back');
             inputCompareKeysFn = e => 
             {
                 const key = e.key;
@@ -110,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () =>
             };
 
             questionElement.innerText = `${left} VS ${right}`;
+            backButton.addEventListener('mousedown', backFn);
             leftButton.addEventListener('mousedown', leftButtonFn);
             rightButton.addEventListener('mousedown', rightButtonFn);
             sortListButton.addEventListener('mousedown', resortingFn);
@@ -147,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () =>
     if(list.length)
     {
         listElement.value = list.join('\n');
-        let listToRank;
         if(save.length && permutation !== null)
             listToRank = shuffleArrayByPermutation(list, permutation);
         else if(shuffleCheckbox.checked)
@@ -163,23 +190,7 @@ document.addEventListener('DOMContentLoaded', () =>
         rankList(listToRank);
     }
 
-    sortListButton.addEventListener('mousedown', () => 
-    {
-        list = getInputList();
-        save = [];
-        saveIndex = 0;
-        let listToRank;
-        if(shuffleCheckbox.checked)
-        {
-            permutation = createRandomPermutation(list.length);
-            listToRank = shuffleArrayByPermutation(list, permutation);
-        }
-        else
-        {
-            listToRank = [...list];
-            permutation = null;
-        }
-        rankList(listToRank);    
-    });
+    sortListButton.addEventListener('mousedown', rankListButtonFn);
+    backButton.addEventListener('mousedown', backButtonFn);
     shareButton.addEventListener('mousedown', share);
 });
