@@ -1,65 +1,22 @@
 import {getNumOfComparisonsRange, getExpectedNumOfComparisons} from "./math.js";
+import {createRandomPermutation, shuffleArrayByPermutation, mergeSort} from "./array.js";
 
 const createElementFromHtml = htmlString => 
 {
-	const elem = document.createElement('template');
-	elem.innerHTML = htmlString.trim();
-	return elem.content;
+    const elem = document.createElement('template');
+    elem.innerHTML = htmlString.trim();
+    return elem.content;
 };
 
-const shuffleArray = arr =>
-{
-	const shuffledArr = [...arr];
-	for(let i = shuffledArr.length; i--> 0;)
-	{
-		const randIndex = Math.floor(Math.random() * (i + 1));
-		const temp = shuffledArr[i];
-		shuffledArr[i] = shuffledArr[randIndex];
-		shuffledArr[randIndex] = temp;
-	}
-	return shuffledArr;
-};
-
-const descPred = (left, right) =>
-{
-    return left < right;
-};
-
-const mergeSort = async (arr, compareFn=descPred) =>
-{
-    if(arr.length <= 1)
-        return arr;
-    
-    const sortedArr = [...arr];
-    const mid = Math.floor(sortedArr.length / 2);
-    const leftArr = await mergeSort(sortedArr.slice(0, mid), compareFn);
-    const rightArr = await mergeSort(sortedArr.slice(mid, sortedArr.length), compareFn);
-    let left = 0;
-    let right = 0;
-	let answer;
-    for(let i = 0; i < arr.length; ++i)
-    {
-		if(left === leftArr.length)
-			answer = false;
-		else if(right === rightArr.length)
-			answer = true;
-		else
-            answer = await compareFn(leftArr[left], rightArr[right]);
-
-        if(answer)
-            sortedArr[i] = leftArr[left++];
-        else
-            sortedArr[i] = rightArr[right++];
-    }
-    return sortedArr;
-};
-
-const initConfig = () =>
+const loadConfig = () =>
 {
     const params = new URLSearchParams(document.location.search);
-    let config;
+    let config = {};
     try
     {
+        if(!params.has('config'))
+            return config;
+
         config = JSON.parse(LZString.decompressFromBase64(params.get('config').replace('-', '+' )));
 
         if(!typeof(config['list'].constructor === Array))
@@ -67,10 +24,11 @@ const initConfig = () =>
     }
     catch(e)
     {
-        config = {'list': []};
+        console.error(e);
     }
+
     return config;
-}
+};
 
 document.addEventListener('DOMContentLoaded', () => 
 {
@@ -85,10 +43,14 @@ document.addEventListener('DOMContentLoaded', () =>
     const shuffleCheckbox = document.querySelector('#shuffle');
     const linkElement = document.querySelector('#link');
 
-    const config = initConfig();
+    const config = loadConfig();
+    let list = config['list']? config['list'] : [];
+    let save = config['save']? config['save'] : [];
+    let permutation = config['permutation']? config['permutation'] : null;
 
-    if(config['list'].length)
-        listElement.value = config['list'].join('\n');
+    let saveIndex = 0;
+
+    shuffleCheckbox.checked = save.length === 0 || permutation !== null;
 
     const getInputList = () => 
     {
@@ -105,27 +67,30 @@ document.addEventListener('DOMContentLoaded', () =>
         infoElement.appendChild(createElementFromHtml(`<h4>Comparisons Average: ${avg}</h4>`));
     };
 
-    const sortList = async () =>
+    const rankList = async list =>
     {
         resultsElement.innerHTML = '';
-        config['list'] = getInputList();
-        if(shuffleCheckbox.checked)
-            config['list'] = shuffleArray(config['list']);
-        renderComparisons(config['list'].length);
-        mergeSort(config['list'], inputCompare).then(sorted =>
+        renderComparisons(list.length);
+        mergeSort([...list], inputCompare).then(sorted =>
         {
             questionElement.innerText = '';
+            save = [];
+            permutation = null;
             sorted.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
         })
-        .catch(e => console.log(e))
+        .catch(e => console.error(e));
     };
 
     
     const inputCompare = async (left, right) => 
     {
         let leftButtonFn, rightButtonFn, resortingFn, inputCompareKeysFn;
+        
         return new Promise((resolve, reject) => 
         {
+            if(saveIndex < save.length)
+                return resolve(save[saveIndex]);
+
             leftButtonFn = () => resolve(true);
             rightButtonFn = () => resolve(false);
             resortingFn = () => reject('Resorting');
@@ -146,18 +111,28 @@ document.addEventListener('DOMContentLoaded', () =>
             sortListButton.addEventListener('mousedown', resortingFn);
             document.addEventListener('keydown', inputCompareKeysFn);
         })
+        .then(answer =>
+        {
+            if(saveIndex >= save.length)
+                save.push(answer);
+
+            ++saveIndex;
+            return answer;
+        })
         .finally(() => 
         {
             document.removeEventListener('keydown', inputCompareKeysFn);
-            document.removeEventListener('mousedown', leftButtonFn);
-            document.removeEventListener('mousedown', rightButtonFn);
-            document.removeEventListener('mousedown', resortingFn);
+            leftButton.removeEventListener('mousedown', leftButtonFn);
+            rightButton.removeEventListener('mousedown', rightButtonFn);
+            sortListButton.removeEventListener('mousedown', resortingFn);
         });
     };
 
     const share = () =>
     {
-        config['list'] = getInputList();
+        config['list'] = list.length? list : getInputList();
+        config['save'] = save;
+        config['permutation'] = permutation? permutation : null;
         const compressedConfig = LZString.compressToBase64(JSON.stringify(config));
         const link = location.protocol + '//' + location.host + location.pathname + '?config=' + compressedConfig.replace('+', '-');
         linkElement.href = link;
@@ -165,6 +140,42 @@ document.addEventListener('DOMContentLoaded', () =>
         navigator.clipboard.writeText(link);
     };
 
-    sortListButton.addEventListener('mousedown', sortList);
+    if(list.length)
+    {
+        listElement.value = list.join('\n');
+        let listToRank;
+        if(save.length && permutation !== null)
+            listToRank = shuffleArrayByPermutation(list, permutation);
+        else if(shuffleCheckbox.checked)
+        {
+            permutation = createRandomPermutation(list.length);
+            listToRank = shuffleArrayByPermutation(list, permutation);
+        }
+        else
+        {
+            listToRank = [...list];
+            permutation = null;
+        }
+        rankList(listToRank);
+    }
+
+    sortListButton.addEventListener('mousedown', () => 
+    {
+        list = getInputList();
+        save = [];
+        saveIndex = 0;
+        let listToRank;
+        if(shuffleCheckbox.checked)
+        {
+            permutation = createRandomPermutation(list.length);
+            listToRank = shuffleArrayByPermutation(list, permutation);
+        }
+        else
+        {
+            listToRank = [...list];
+            permutation = null;
+        }
+        rankList(listToRank);    
+    });
     shareButton.addEventListener('mousedown', share);
 });
