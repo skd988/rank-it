@@ -1,6 +1,8 @@
 import {getNumOfComparisonsRange, getExpectedNumOfComparisons} from "./math.js";
 import {createRandomPermutation, shuffleArrayByPermutation, mergeSort} from "./array.js";
 
+const rejectCodes = ['resort', 'back', 'stop'];
+
 const createElementFromHtml = htmlString => 
 {
     const elem = document.createElement('template');
@@ -35,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () =>
     const listElement = document.querySelector('#list');
     const leftButton = document.querySelector('#left-button');
     const rightButton = document.querySelector('#right-button');
+    const stopButton = document.querySelector('#stop-button');
     const questionElement = document.querySelector('#question');
     const sortListButton = document.querySelector('#sort-list-button');
     const backButton = document.querySelector('#back-button');
@@ -46,13 +49,13 @@ document.addEventListener('DOMContentLoaded', () =>
 
     const config = loadConfig();
     let list = config['list']? config['list'] : [];
-    let save = config['save']? config['save'].map(i => Boolean(i)) : [];
+    let save = config['save']? config['save'].map(i => Boolean(i)) : null;
     let permutation = config['permutation']? config['permutation'] : null;
     let listToRank;
 
     let saveIndex = 0;
 
-    shuffleCheckbox.checked = save.length === 0 || permutation !== null;
+    shuffleCheckbox.checked = save === null || permutation !== null;
 
     const getInputList = () => 
     {
@@ -73,18 +76,17 @@ document.addEventListener('DOMContentLoaded', () =>
     {
         resultsElement.innerHTML = '';
         renderComparisons(list.length);
+        if(save === null)
+            save = [];
         mergeSort([...list], inputCompare).then(sorted =>
         {
-            questionElement.innerText = '';
-            save = [];
-            permutation = null;
             sorted.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
         })
         .catch(e => 
         {
-            if(e !== 'Resorting' && e !== 'Back')
+            if(!rejectCodes.includes(e))
                 console.error(e);
-        })
+        });
     };
 
     const backButtonFn = async () =>
@@ -94,6 +96,14 @@ document.addEventListener('DOMContentLoaded', () =>
         rankList(listToRank);
     };
     
+    const stopButtonFn = async () =>
+    {
+        questionElement.innerText = '';
+        infoElement.innerHTML = '';
+        save = null;
+        permutation = null;
+    };
+
     const rankListButtonFn = async () =>
     {
         list = getInputList();
@@ -114,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () =>
 
     const inputCompare = async (left, right) => 
     {
-        let leftButtonFn, rightButtonFn, resortingFn, inputCompareKeysFn, backFn;
+        let leftButtonFn, rightButtonFn, resortingFn, inputCompareKeysFn, backFn, stopFn;
         
         return new Promise((resolve, reject) => 
         {
@@ -123,8 +133,9 @@ document.addEventListener('DOMContentLoaded', () =>
 
             leftButtonFn = () => resolve(true);
             rightButtonFn = () => resolve(false);
-            resortingFn = () => reject('Resorting');
-            backFn = () => reject('Back');
+            resortingFn = () => reject('resort');
+            backFn = () => reject('back');
+            stopFn = () => reject('stop');
             inputCompareKeysFn = e => 
             {
                 const key = e.key;
@@ -141,6 +152,7 @@ document.addEventListener('DOMContentLoaded', () =>
             leftButton.addEventListener('mousedown', leftButtonFn);
             rightButton.addEventListener('mousedown', rightButtonFn);
             sortListButton.addEventListener('mousedown', resortingFn);
+            stopButton.addEventListener('mousedown', stopFn);
             document.addEventListener('keydown', inputCompareKeysFn);
         })
         .then(answer =>
@@ -154,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () =>
         .finally(() => 
         {
             document.removeEventListener('keydown', inputCompareKeysFn);
+            backButton.removeEventListener('mousedown', backFn);
             leftButton.removeEventListener('mousedown', leftButtonFn);
             rightButton.removeEventListener('mousedown', rightButtonFn);
             sortListButton.removeEventListener('mousedown', resortingFn);
@@ -163,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () =>
     const share = () =>
     {
         config['list'] = list.length? list : getInputList();
-        config['save'] = save.map(i => +i);
+        config['save'] = save? save.map(i => +i) : null;
         config['permutation'] = permutation? permutation : null;
         const compressedConfig = LZString.compressToBase64(JSON.stringify(config));
         const link = location.protocol + '//' + location.host + location.pathname + '?config=' + compressedConfig.replaceAll('+', '-');
@@ -172,25 +185,32 @@ document.addEventListener('DOMContentLoaded', () =>
         navigator.clipboard.writeText(link);
     };
 
-    if(list.length)
+    const rankFromConfig = () =>
     {
         listElement.value = list.join('\n');
-        if(save.length && permutation !== null)
-            listToRank = shuffleArrayByPermutation(list, permutation);
-        else if(shuffleCheckbox.checked)
+        if(save !== null)
         {
-            permutation = createRandomPermutation(list.length);
-            listToRank = shuffleArrayByPermutation(list, permutation);
+            if(permutation !== null)
+                listToRank = shuffleArrayByPermutation(list, permutation);
+            else if(shuffleCheckbox.checked)
+            {
+                permutation = createRandomPermutation(list.length);
+                listToRank = shuffleArrayByPermutation(list, permutation);
+            }
+            else
+            {
+                listToRank = [...list];
+                permutation = null;
+            }
+            rankList(listToRank);
         }
-        else
-        {
-            listToRank = [...list];
-            permutation = null;
-        }
-        rankList(listToRank);
-    }
+    };
+
+    if(list.length)
+        rankFromConfig();
 
     sortListButton.addEventListener('mousedown', rankListButtonFn);
     backButton.addEventListener('mousedown', backButtonFn);
+    stopButton.addEventListener('mousedown', stopButtonFn);
     shareButton.addEventListener('mousedown', share);
 });
