@@ -80,6 +80,8 @@ document.addEventListener('DOMContentLoaded', () =>
             save = [];
         mergeSort([...list], inputCompare).then(sorted =>
         {
+            questionElement.innerText = '';
+            infoElement.innerHTML = '';
             sorted.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
         })
         .catch(e => 
