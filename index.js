@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () =>
                     reject('Resorting')
             };
 
-            questionElement.innerText = `${left} VS ${right}`;
+            questionElement.innerText = `${save.length + 1}. ${left} VS ${right}`;
             backButton.addEventListener('mousedown', backFn);
             leftButton.addEventListener('mousedown', leftButtonFn);
             rightButton.addEventListener('mousedown', rightButtonFn);
