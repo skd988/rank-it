@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () =>
     const infoElement = document.querySelector('#info');
     const shuffleCheckbox = document.querySelector('#shuffle');
     const linkElement = document.querySelector('#link');
+    const historyElement = document.querySelector('#history');
 
     const config = loadConfig();
     let list = config['list']? config['list'] : [];
@@ -83,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () =>
             questionElement.innerText = '';
             infoElement.innerHTML = '';
             sorted.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
+            historyElement.innerHTML = '';
         })
         .catch(e => 
         {
@@ -159,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () =>
         })
         .then(answer =>
         {
+            historyElement.appendChild(createElementFromHtml(answer? `<li><b>${left}</b> \> ${right}</li>` : `<li>${left} \< <b>${right}</b></li>`));
             if(saveIndex >= save.length)
                 save.push(answer);
 

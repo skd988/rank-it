@@ -8,20 +8,23 @@
     <body>
         <div class="flex-container">
             <textarea id="list" name="Text1" cols="40" rows="5"></textarea>
+            <label for="shuffle">Shuffle</label>
+            <input id="shuffle" type="checkbox" checked>
+            <button id="sort-list-button">sort me</button>
+            <button id="stop-button">stop</button>
+            <div id="info" class="flex-container"></div>
         </div>
-        <label for="shuffle">Shuffle</label>
-        <input id="shuffle" type="checkbox" checked>
-        <button id="sort-list-button">sort me</button>
-        <button id="back-button">back</button>
-        <button id="stop-button">stop</button>
-        <div id="info" class="flex-container"></div>
         <div class="flex-container">
+            <button id="back-button">back</button>
             <h3 id="question"></h3>
             <button id="left-button">left</button>
             <button id="right-button">right</button>
         </div>
         <div class="flex-container">
             <ol id="results"></ol>
+        </div>
+        <div class="flex-container">
+            <ol id="history"></ol>
         </div>
         <button id="share-button">share</button>
         <a id="link" href=""></a>
