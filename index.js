@@ -58,6 +58,14 @@ document.addEventListener('DOMContentLoaded', () =>
 
     shuffleCheckbox.checked = save === null || permutation !== null;
 
+    const clear = () => 
+    {
+        resultsElement.innerHTML = '';
+        historyElement.innerHTML = '';
+        infoElement.innerHTML = '';
+        questionElement.innerHTML = '';
+    };
+
     const getInputList = () => 
     {
         return listElement.value.split('\n').filter(i => i);
@@ -75,16 +83,14 @@ document.addEventListener('DOMContentLoaded', () =>
 
     const rankList = async list =>
     {
-        resultsElement.innerHTML = '';
+        clear();
         renderComparisons(list.length);
         if(save === null)
             save = [];
         mergeSort([...list], inputCompare).then(sorted =>
         {
-            questionElement.innerText = '';
-            infoElement.innerHTML = '';
+            clear();
             sorted.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
-            historyElement.innerHTML = '';
         })
         .catch(e => 
         {
@@ -102,8 +108,7 @@ document.addEventListener('DOMContentLoaded', () =>
     
     const stopButtonFn = async () =>
     {
-        questionElement.innerText = '';
-        infoElement.innerHTML = '';
+        clear();
         save = null;
         permutation = null;
     };
