@@ -32,6 +32,11 @@ const loadConfig = () =>
     return config;
 };
 
+const copyToClipboard = text =>
+{
+    navigator.clipboard.writeText(text);
+};
+
 document.addEventListener('DOMContentLoaded', () => 
 {
     const listElement = document.querySelector('#list');
@@ -42,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () =>
     const sortListButton = document.querySelector('#sort-list-button');
     const backButton = document.querySelector('#back-button');
     const shareButton = document.querySelector('#share-button');
+    const copyButton = document.querySelector('#copy-button');
     const resultsElement = document.querySelector('#results');
     const infoElement = document.querySelector('#info');
     const shuffleCheckbox = document.querySelector('#shuffle');
@@ -58,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () =>
 
     shuffleCheckbox.checked = save === null || permutation !== null;
 
-    const clear = () => 
+    const clearChangingElements = () => 
     {
         resultsElement.innerHTML = '';
         historyElement.innerHTML = '';
@@ -83,13 +89,13 @@ document.addEventListener('DOMContentLoaded', () =>
 
     const rankList = async list =>
     {
-        clear();
+        clearChangingElements();
         renderComparisons(list.length);
         if(save === null)
             save = [];
         mergeSort([...list], inputCompare).then(sorted =>
         {
-            clear();
+            clearChangingElements();
             sorted.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
         })
         .catch(e => 
@@ -108,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () =>
     
     const stopButtonFn = async () =>
     {
-        clear();
+        clearChangingElements();
         save = null;
         permutation = null;
     };
@@ -192,7 +198,12 @@ document.addEventListener('DOMContentLoaded', () =>
         const link = location.protocol + '//' + location.host + location.pathname + '?config=' + compressedConfig.replaceAll('+', '-');
         linkElement.href = link;
         linkElement.innerText = 'Link!';
-        navigator.clipboard.writeText(link);
+        copyToClipboard(link);
+    };
+    
+    const copyResults = () =>
+    {
+        copyToClipboard(Array.from(resultsElement.childNodes).map((res, index) => (index + 1) + '. ' + res.innerText).join('\n'));
     };
 
     const rankFromConfig = () =>
@@ -223,4 +234,5 @@ document.addEventListener('DOMContentLoaded', () =>
     backButton.addEventListener('mousedown', backButtonFn);
     stopButton.addEventListener('mousedown', stopButtonFn);
     shareButton.addEventListener('mousedown', share);
+    copyButton.addEventListener('mousedown', copyResults);
 });
