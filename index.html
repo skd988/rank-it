@@ -6,30 +6,51 @@
        	<link rel="stylesheet" type="text/css" href="index.css"></link>
     </head>
     <body>
-        <div class="flex-container">
-            <textarea id="list" name="Text1" cols="40" rows="5"></textarea>
-            <label for="shuffle">Shuffle</label>
-            <input id="shuffle" type="checkbox" checked>
-            <button id="sort-list-button">sort me</button>
-            <button id="stop-button">stop</button>
-            <div id="info" class="flex-container"></div>
-        </div>
-        <div class="flex-container">
-            <button id="back-button">back</button>
-            <h3 id="question"></h3>
-            <button id="left-button">left</button>
-            <button id="right-button">right</button>
-        </div>
-        <div class="flex-container">
-            <ol id="results"></ol>
-            <button id="copy-button">copy results</button>
-        </div>
-        <div class="flex-container">
-            <ol id="history"></ol>
-        </div>
-        <button id="share-button">share</button>
-        <a id="link" href=""></a>
-        <script src="index.js" type="module"></script>
+        <div class="flex main-container flex-grow-equal">
+            <div class="list-container flex flex-col">
+                <textarea id="list" rows="20"></textarea>
+                <div class="flex justify-center">
+                    <button id="rank-list-button">Rank!</button>
+                    <label id="shuffle-label">
+                        <input id="shuffle" type="checkbox" checked>
+                        Shuffle
+                    </label>
+                </div>
+                <div id="info" class="hidden"></div>
+            </div>
+            <div class="comparison-container flex flex-col">
+                <div>
+                </div>
+                <div class="flex flex-col text-center hidden" id="comparison">
+                    <div class="flex comparisons-options">
+                        <button id="back-button">Back</button>
+                        <h1 id="comparison-counter"></h2>
+                            <button id="stop-button">Stop</button>
+                        </div>
+                        <div class="flex flex-col">
+                            <div>
+                                <button id="first-comparee-button" class="comparee-button"></button>
+                            </div>
+                            <h2>VS</h2>
+                            <button id="second-comparee-button" class="comparee-button"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col results-container">
+                    <div>
+                        <button id="share-button">Share</button>
+                        <a id="link" href=""></a>
+                    </div>
+                    <div class="hidden">
+                        <ol id="results"></ol>
+                        <button id="copy-button">Copy results</button>
+                    </div>
+                    <div>
+                        <ol id="history"></ol>
+                    </div>
+                </div>
+            </div>
+            <script src="index.js" type="module"></script>
         <script src="https://cdn.jsdelivr.net/gh/pieroxy/lz-string/libs/lz-string.js"></script>
     </body>
  </html>

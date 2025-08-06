@@ -37,14 +37,17 @@ const copyToClipboard = text =>
     navigator.clipboard.writeText(text);
 };
 
+const hideElement = elem => elem.classList.add('hidden');
+const unhideElement = elem => elem.classList.remove('hidden');
+
 document.addEventListener('DOMContentLoaded', () => 
 {
     const listElement = document.querySelector('#list');
-    const leftButton = document.querySelector('#left-button');
-    const rightButton = document.querySelector('#right-button');
+    const firstCompareeButton = document.querySelector('#first-comparee-button');
+    const secondCompareeButton = document.querySelector('#second-comparee-button');
     const stopButton = document.querySelector('#stop-button');
-    const questionElement = document.querySelector('#question');
-    const sortListButton = document.querySelector('#sort-list-button');
+    const comparisonElement = document.querySelector('#comparison');
+    const rankListButton = document.querySelector('#rank-list-button');
     const backButton = document.querySelector('#back-button');
     const shareButton = document.querySelector('#share-button');
     const copyButton = document.querySelector('#copy-button');
@@ -53,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () =>
     const shuffleCheckbox = document.querySelector('#shuffle');
     const linkElement = document.querySelector('#link');
     const historyElement = document.querySelector('#history');
+    const comparisonCounter = document.querySelector('#comparison-counter')
 
     const config = loadConfig();
     let list = config['list']? config['list'] : [];
@@ -67,9 +71,10 @@ document.addEventListener('DOMContentLoaded', () =>
     const clearChangingElements = () => 
     {
         resultsElement.innerHTML = '';
+        hideElement(resultsElement.parentElement);
         historyElement.innerHTML = '';
-        infoElement.innerHTML = '';
-        questionElement.innerHTML = '';
+        hideElement(infoElement);
+        hideElement(comparisonElement);
     };
 
     const getInputList = () => 
@@ -82,9 +87,11 @@ document.addEventListener('DOMContentLoaded', () =>
         const range = getNumOfComparisonsRange(size);
         const avg = getExpectedNumOfComparisons(size);
         infoElement.innerHTML = '';
-        infoElement.appendChild(createElementFromHtml(`<h4>List's length: ${size}</h4>`));
-        infoElement.appendChild(createElementFromHtml(`<h4>Comparisons Range: ${range[0]}-${range[1]}</h4>`));
-        infoElement.appendChild(createElementFromHtml(`<h4>Comparisons Average: ${avg}</h4>`));
+        infoElement.appendChild(createElementFromHtml(`<h3>Info:</h3>`));
+        infoElement.appendChild(createElementFromHtml(`<p>List's length: ${size}</p>`));
+        infoElement.appendChild(createElementFromHtml(`<p>Comparisons Range: ${range[0]}-${range[1]}</p>`));
+        infoElement.appendChild(createElementFromHtml(`<p>Comparisons Average: ${avg.toFixed(2)}</p>`));
+        unhideElement(infoElement);
     };
 
     const rankList = async list =>
@@ -97,6 +104,8 @@ document.addEventListener('DOMContentLoaded', () =>
         {
             clearChangingElements();
             sorted.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
+            unhideElement(resultsElement.parentElement);
+
         })
         .catch(e => 
         {
@@ -137,42 +146,49 @@ document.addEventListener('DOMContentLoaded', () =>
         rankList(listToRank); 
     };
 
-    const inputCompare = async (left, right) => 
+    const inputCompare = async (first, second) => 
     {
-        let leftButtonFn, rightButtonFn, resortingFn, inputCompareKeysFn, backFn, stopFn;
+        let firstButtonFn, secondButtonFn, resortingFn, inputCompareKeysFn, backFn, stopFn;
         
         return new Promise((resolve, reject) => 
         {
             if(saveIndex < save.length)
                 return resolve(save[saveIndex]);
 
-            leftButtonFn = () => resolve(true);
-            rightButtonFn = () => resolve(false);
+            firstButtonFn = () => resolve(true);
+            secondButtonFn = () => resolve(false);
             resortingFn = () => reject('resort');
             backFn = () => reject('back');
             stopFn = () => reject('stop');
             inputCompareKeysFn = e => 
             {
                 const key = e.key;
-                if (key === 'ArrowLeft')
+                if (key === 'ArrowLeft' || key === 'ArrowUp')
+                {
+                    e.preventDefault()
                     resolve(true);
-                else if (key === 'ArrowRight')
+                }
+                else if (key === 'ArrowRight' || key === 'ArrowDown')
+                {
+                    e.preventDefault()
                     resolve(false);
-                else if (key === 's')
-                    reject('Resorting')
+                }
             };
 
-            questionElement.innerText = `${save.length + 1}. ${left} VS ${right}`;
+            comparisonCounter.innerText = save.length + 1;
+            firstCompareeButton.innerText = first;
+            secondCompareeButton.innerText = second;
+            unhideElement(comparisonElement);
             backButton.addEventListener('mousedown', backFn);
-            leftButton.addEventListener('mousedown', leftButtonFn);
-            rightButton.addEventListener('mousedown', rightButtonFn);
-            sortListButton.addEventListener('mousedown', resortingFn);
+            firstCompareeButton.addEventListener('mousedown', firstButtonFn);
+            secondCompareeButton.addEventListener('mousedown', secondButtonFn);
+            rankListButton.addEventListener('mousedown', resortingFn);
             stopButton.addEventListener('mousedown', stopFn);
             document.addEventListener('keydown', inputCompareKeysFn);
         })
         .then(answer =>
         {
-            historyElement.appendChild(createElementFromHtml(answer? `<li><b>${left}</b> \> ${right}</li>` : `<li>${left} \< <b>${right}</b></li>`));
+            historyElement.appendChild(createElementFromHtml(answer? `<li><b>${first}</b> \> ${second}</li>` : `<li>${first} \< <b>${second}</b></li>`));
             if(saveIndex >= save.length)
                 save.push(answer);
 
@@ -183,9 +199,9 @@ document.addEventListener('DOMContentLoaded', () =>
         {
             document.removeEventListener('keydown', inputCompareKeysFn);
             backButton.removeEventListener('mousedown', backFn);
-            leftButton.removeEventListener('mousedown', leftButtonFn);
-            rightButton.removeEventListener('mousedown', rightButtonFn);
-            sortListButton.removeEventListener('mousedown', resortingFn);
+            firstCompareeButton.removeEventListener('mousedown', firstButtonFn);
+            secondCompareeButton.removeEventListener('mousedown', secondButtonFn);
+            rankListButton.removeEventListener('mousedown', resortingFn);
         });
     };
 
@@ -226,11 +242,11 @@ document.addEventListener('DOMContentLoaded', () =>
             rankList(listToRank);
         }
     };
-
+    
     if(list.length)
         rankFromConfig();
 
-    sortListButton.addEventListener('mousedown', rankListButtonFn);
+    rankListButton.addEventListener('mousedown', rankListButtonFn);
     backButton.addEventListener('mousedown', backButtonFn);
     stopButton.addEventListener('mousedown', stopButtonFn);
     shareButton.addEventListener('mousedown', share);

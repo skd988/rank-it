@@ -1,5 +1,93 @@
-#list{
-    width: 300px;
+html {
+	scrollbar-gutter: stable;
+}
+
+.flex {
+	display: flex;
+}
+
+.flex-col {
+	flex-direction: column;
+	gap: 1rem;
+}
+
+#list {
+	resize: vertical;
+	max-width: 100%;
 	text-align: center;
-	flex-basis: 20%;
+}
+
+#info {
+	padding: 1rem;
+	border-radius: 10%;
+	border: solid;
+	align-self: center;
+	background-color: rgb(234, 255, 0);
+	inline-size: max-content;
+	font-size: 1.5rem;
+}
+
+.hidden {
+	display: none;
+}
+
+.justify-center {
+	justify-content: center;
+}
+
+.align-center {
+	align-content: center;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.comparisons-options {
+	padding-inline: 20%;
+	padding-bottom: 5%;
+	justify-content: space-between;
+}
+
+.comparee-button {
+	inline-size: 100%;
+	min-height: 6rem;
+	text-align: center;
+}
+
+.main-container {
+	gap: 2rem;
+}
+
+.flex-grow-equal > * {
+	flex: 1 1 0;
+}
+
+#shuffle-label {
+	align-self: center;
+	font-size: 2rem;
+	margin: 1rem;
+}
+
+button {
+	inline-size: max-content;
+	display: inline-block;
+	padding: 1rem;
+	font-size: 1.5rem;
+	cursor: pointer;
+	text-align: center;
+	color: #fff;
+	background-color: #0430aa;
+	border: none;
+	border-radius: 15px;
+	box-shadow: 0 9px #999;
+}
+
+button:hover {
+	background-color: #3f4bcb
+}
+
+button:active {
+	box-shadow: 0 5px #666;
+	transform: translateY(4px);
 }
