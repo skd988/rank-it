@@ -110,10 +110,6 @@ document.addEventListener('DOMContentLoaded', () =>
         {
             if(!rejectCodes.includes(e))
                 console.error(e);
-        })
-        .finally(() =>
-        {
-            rankListButton.addEventListener('mousedown', rankListButtonFn);
         });
     };
 
