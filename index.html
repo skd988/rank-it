@@ -8,17 +8,17 @@
     <body>
         <div class="flex main-container flex-grow-equal">
             <div class="list-container flex flex-col">
-                <textarea id="list" rows="20"></textarea>
+                <textarea id="list" class="larger-font" rows="20"></textarea>
                 <div class="flex justify-center">
                     <button id="rank-list-button">Rank!</button>
-                    <label id="shuffle-label">
+                    <label id="shuffle-label" class="text-from-button">
                         <input id="shuffle" type="checkbox" checked>
                         Shuffle
                     </label>
                 </div>
                 <div id="info" class="hidden"></div>
             </div>
-            <div class="comparison-container flex flex-col ">
+            <div class="comparison-container flex flex-col">
                 <div class="flex flex-col text-center hidden" id="comparison">
                     <div class="flex comparisons-options">
                         <button id="back-button">Back</button>
@@ -33,16 +33,16 @@
                 </div>
             </div>
             <div class="flex flex-col results-container">
-                <div>
+                <div class="flex share">
                     <button id="share-button">Share</button>
-                    <a id="link" href=""></a>
+                    <a id="link" class="larger-font bold-font" href=""></a>
                 </div>
                 <div class="hidden">
-                    <ol id="results"></ol>
+                    <ol id="results" class="larger-font"></ol>
                     <button id="copy-button">Copy results</button>
                 </div>
                 <div>
-                    <ol id="history"></ol>
+                    <ol id="history" class="larger-font"></ol>
                 </div>
             </div>
         </div>

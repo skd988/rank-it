@@ -15,6 +15,7 @@ html {
 	resize: vertical;
 	max-width: 100%;
 	text-align: center;
+	font-size: large;
 }
 
 #info {
@@ -35,8 +36,9 @@ html {
 	justify-content: center;
 }
 
-.align-center {
-	align-content: center;
+.share {
+	gap: 1rem;
+	align-items: center;
 }
 
 .text-center {
@@ -66,6 +68,16 @@ html {
 }
 .flex-grow-equal > * {
 	flex: 1 1 0;
+}
+
+.larger-font
+{
+	font-size: larger;
+}
+
+.bold-font
+{
+	font-weight: bold;
 }
 
 #shuffle-label {

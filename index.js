@@ -193,16 +193,18 @@ document.addEventListener('DOMContentLoaded', () =>
                     e.preventDefault()
                     resolve(false);
                 }
-                else if(e.ctrlKey && key === 'b' || key === 'ArrowLeft')
+                else if(e.ctrlKey && (key === 'b' || key === 'B') || key === 'ArrowLeft')
                 {
                     e.preventDefault();
                     backFn();
                 }
-                else if(e.ctrlKey && key === 's')
+                else if(e.ctrlKey && (key === 's' || key === 'S'))
                 {
                     e.preventDefault()
                     stopFn();
                 }
+                else if(e.ctrlKey && key === 'Enter')
+                    resortingFn();
             };
 
             comparisonCounter.innerText = save.length + 1;
@@ -276,6 +278,13 @@ document.addEventListener('DOMContentLoaded', () =>
     
     if(list.length)
         rankFromConfig();
+
+    document.addEventListener('keydown', e => 
+    {
+        const key = e.key;
+        if(e.ctrlKey && key === 'Enter')
+            rankListButtonFn();
+    });
 
     rankListButton.addEventListener('mousedown', rankListButtonFn);
     shareButton.addEventListener('mousedown', share);
