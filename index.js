@@ -71,8 +71,8 @@ document.addEventListener('DOMContentLoaded', () =>
     const clearChangingElements = () => 
     {
         resultsElement.innerHTML = '';
-        hideElement(resultsElement.parentElement);
         historyElement.innerHTML = '';
+        hideElement(resultsElement.parentElement);
         hideElement(infoElement);
         hideElement(comparisonElement);
     };
@@ -105,20 +105,28 @@ document.addEventListener('DOMContentLoaded', () =>
             clearChangingElements();
             sorted.forEach(val => resultsElement.appendChild(createElementFromHtml(`<li>${val}</li>`)));
             unhideElement(resultsElement.parentElement);
-
         })
         .catch(e => 
         {
             if(!rejectCodes.includes(e))
                 console.error(e);
+        })
+        .finally(() =>
+        {
+            rankListButton.addEventListener('mousedown', rankListButtonFn);
         });
     };
 
     const backButtonFn = async () =>
     {
-        save.pop();
-        saveIndex = 0;
-        rankList(listToRank);
+        if(save.length === 0)
+            stopButtonFn();
+        else
+        {
+            save.pop();
+            saveIndex = 0;
+            rankList(listToRank);
+        }
     };
     
     const stopButtonFn = async () =>
@@ -145,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () =>
         }
         rankList(listToRank); 
     };
-
+    
     const inputCompare = async (first, second) => 
     {
         let firstButtonFn, secondButtonFn, resortingFn, inputCompareKeysFn, backFn, stopFn;
@@ -157,34 +165,57 @@ document.addEventListener('DOMContentLoaded', () =>
 
             firstButtonFn = () => resolve(true);
             secondButtonFn = () => resolve(false);
-            resortingFn = () => reject('resort');
-            backFn = () => reject('back');
-            stopFn = () => reject('stop');
+            resortingFn = () => {
+                reject('resort');
+            };
+
+            backFn = () => 
+            {
+                backButtonFn();
+                reject('back');
+            };
+
+            stopFn = () => {
+                stopButtonFn();
+                reject('stop');
+            };
+            
             inputCompareKeysFn = e => 
             {
                 const key = e.key;
-                if (key === 'ArrowLeft' || key === 'ArrowUp')
+                if(key === 'ArrowUp')
                 {
                     e.preventDefault()
                     resolve(true);
                 }
-                else if (key === 'ArrowRight' || key === 'ArrowDown')
+                else if(key === 'ArrowDown')
                 {
                     e.preventDefault()
                     resolve(false);
+                }
+                else if(e.ctrlKey && key === 'b' || key === 'ArrowLeft')
+                {
+                    e.preventDefault();
+                    backFn();
+                }
+                else if(e.ctrlKey && key === 's')
+                {
+                    e.preventDefault()
+                    stopFn();
                 }
             };
 
             comparisonCounter.innerText = save.length + 1;
             firstCompareeButton.innerText = first;
             secondCompareeButton.innerText = second;
-            unhideElement(comparisonElement);
-            backButton.addEventListener('mousedown', backFn);
             firstCompareeButton.addEventListener('mousedown', firstButtonFn);
             secondCompareeButton.addEventListener('mousedown', secondButtonFn);
+            backButton.addEventListener('mousedown', backFn);
             rankListButton.addEventListener('mousedown', resortingFn);
             stopButton.addEventListener('mousedown', stopFn);
             document.addEventListener('keydown', inputCompareKeysFn);
+
+            unhideElement(comparisonElement);
         })
         .then(answer =>
         {
@@ -247,8 +278,6 @@ document.addEventListener('DOMContentLoaded', () =>
         rankFromConfig();
 
     rankListButton.addEventListener('mousedown', rankListButtonFn);
-    backButton.addEventListener('mousedown', backButtonFn);
-    stopButton.addEventListener('mousedown', stopButtonFn);
     shareButton.addEventListener('mousedown', share);
     copyButton.addEventListener('mousedown', copyResults);
 });
