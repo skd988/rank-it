@@ -6,19 +6,28 @@
        	<link rel="stylesheet" type="text/css" href="index.css"></link>
     </head>
     <body>
-        <div class="flex main-container flex-grow-equal">
-            <div class="list-container flex flex-col">
+        <div class="title">Rankomaton</div>
+        <div class="flex main-container">
+            <div class="flex flex-col list-container">
                 <textarea id="list" class="larger-font" rows="20"></textarea>
-                <div class="flex justify-center">
+                <div class="flex space-between gap">
+                    <div class="flex share">
+                        <button id="share-button">Share</button>
+                        <a id="link" class="larger-font bold-font invisible" href="">Link!</a>
+                    </div>
+                    <button id="clear-list-button">Clear</button>
                     <button id="rank-list-button">Rank!</button>
                     <label id="shuffle-label" class="text-from-button">
                         <input id="shuffle" type="checkbox" checked>
                         Shuffle
                     </label>
                 </div>
-                <div id="info" class="hidden"></div>
             </div>
-            <div class="comparison-container flex flex-col">
+            <div class="flex center-container">
+                <div class="hidden">
+                    <button id="copy-button">Copy results</button>
+                    <ol id="results" class="larger-font"></ol>
+                </div>
                 <div class="flex flex-col text-center hidden" id="comparison">
                     <div class="flex comparisons-options">
                         <button id="back-button">Back</button>
@@ -30,16 +39,7 @@
                         <h2>VS</h2>
                         <button id="second-comparee-button" class="comparee-button"></button>
                     </div>
-                </div>
-            </div>
-            <div class="flex flex-col results-container">
-                <div class="flex share">
-                    <button id="share-button">Share</button>
-                    <a id="link" class="larger-font bold-font" href=""></a>
-                </div>
-                <div class="hidden">
-                    <ol id="results" class="larger-font"></ol>
-                    <button id="copy-button">Copy results</button>
+                    <div id="info" class="hidden"></div>
                 </div>
                 <div>
                     <ol id="history" class="larger-font"></ol>

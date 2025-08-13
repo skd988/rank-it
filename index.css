@@ -11,6 +11,16 @@ html {
 	gap: 1rem;
 }
 
+.title {
+	text-align: center;
+	font-size: 4rem;
+	font-weight: bold;
+}
+
+.gap {
+	gap: 1rem;
+}
+
 #list {
 	resize: vertical;
 	max-width: 100%;
@@ -20,12 +30,21 @@ html {
 
 #info {
 	padding: 1rem;
+	margin-top: 2rem;
 	border-radius: 10%;
 	border: solid;
 	align-self: center;
 	background-color: rgb(234, 255, 0);
 	inline-size: max-content;
 	font-size: 1.5rem;
+}
+
+.invisible {
+	visibility: hidden;
+}
+
+.space-between {
+	justify-content: space-evenly;
 }
 
 .hidden {
@@ -65,14 +84,21 @@ html {
 	.main-container {
 		flex-direction: column;
 	}
-}
-.flex-grow-equal > * {
-	flex: 1 1 0;
+
+	.center-container {
+		gap: 1rem;
+		flex-direction: column;
+	}
 }
 
-.larger-font
+#results
 {
-	font-size: larger;
+	font-size: 2rem;
+}
+
+#history
+{
+	font-size: 1.5rem;
 }
 
 .bold-font
@@ -83,7 +109,19 @@ html {
 #shuffle-label {
 	align-self: center;
 	font-size: 2rem;
-	margin: 1rem;
+}
+
+.center-container {
+	flex-wrap: wrap;
+	flex: 2 1 0;
+}
+
+.list-container {
+	flex: 1 2 0;
+}
+
+.center-container > * {
+	flex: 1 1 0;
 }
 
 button {

@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () =>
     const stopButton = document.querySelector('#stop-button');
     const comparisonElement = document.querySelector('#comparison');
     const rankListButton = document.querySelector('#rank-list-button');
+    const clearListButton = document.querySelector('#clear-list-button');
     const backButton = document.querySelector('#back-button');
     const shareButton = document.querySelector('#share-button');
     const copyButton = document.querySelector('#copy-button');
@@ -72,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () =>
     {
         resultsElement.innerHTML = '';
         historyElement.innerHTML = '';
+        hideElement(historyElement.parentElement);
         hideElement(resultsElement.parentElement);
         hideElement(infoElement);
         hideElement(comparisonElement);
@@ -97,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () =>
     const rankList = async list =>
     {
         clearChangingElements();
+        unhideElement(historyElement.parentElement);
         renderComparisons(list.length);
         if(save === null)
             save = [];
@@ -130,6 +133,11 @@ document.addEventListener('DOMContentLoaded', () =>
         clearChangingElements();
         save = null;
         permutation = null;
+    };
+
+    const clearListButtonFn = async () =>
+    {
+        listElement.value = '';
     };
 
     const rankListButtonFn = async () =>
@@ -242,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () =>
         const compressedConfig = LZString.compressToBase64(JSON.stringify(config));
         const link = location.protocol + '//' + location.host + location.pathname + '?config=' + compressedConfig.replaceAll('+', '-');
         linkElement.href = link;
-        linkElement.innerText = 'Link!';
+        linkElement.classList.remove('invisible')
         copyToClipboard(link);
     };
     
@@ -282,6 +290,8 @@ document.addEventListener('DOMContentLoaded', () =>
             rankListButtonFn();
     });
 
+    
+    clearListButton.addEventListener('mousedown', clearListButtonFn);
     rankListButton.addEventListener('mousedown', rankListButtonFn);
     shareButton.addEventListener('mousedown', share);
     copyButton.addEventListener('mousedown', copyResults);
