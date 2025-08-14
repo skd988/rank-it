@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () =>
         })
         .then(answer =>
         {
-            historyElement.appendChild(createElementFromHtml(answer? `<li><b>${first}</b> \> ${second}</li>` : `<li>${first} \< <b>${second}</b></li>`));
+            historyElement.prepend(createElementFromHtml(answer? `<li><b>${first}</b> \> ${second}</li>` : `<li>${first} \< <b>${second}</b></li>`));
             if(saveIndex >= save.length)
                 save.push(answer);
 

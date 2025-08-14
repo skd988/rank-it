@@ -17,7 +17,8 @@ html {
 	font-weight: bold;
 }
 
-.gap {
+.wrap {
+	flex-wrap: wrap;
 	gap: 1rem;
 }
 
@@ -37,6 +38,10 @@ html {
 	background-color: rgb(234, 255, 0);
 	inline-size: max-content;
 	font-size: 1.5rem;
+}
+
+.align-center {
+	align-self: center;
 }
 
 .invisible {
@@ -76,11 +81,16 @@ html {
 	text-align: center;
 }
 
+.subtitle {
+	text-align: center;
+	margin-bottom: 0.5rem;
+}
+
 .main-container {
 	gap: 2rem;
 }
 
-@media all and (max-width: 1270px){
+@media all and (max-width: 1000px){
 	.main-container {
 		flex-direction: column;
 	}
@@ -99,6 +109,7 @@ html {
 #history
 {
 	font-size: 1.5rem;
+	padding-left: 4rem;
 }
 
 .bold-font
