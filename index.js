@@ -131,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () =>
     const stopButtonFn = async () =>
     {
         clearChangingElements();
+        list = [];
         save = null;
         permutation = null;
     };
